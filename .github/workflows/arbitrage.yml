@@ -22,13 +22,13 @@ jobs:
       run: pip install -r requirements.txt
 
     - name: ▶️ Starte interwetten.py
-      run: python3 interwetten.py &
+      run: python3 interwetten.py
     
     - name: ▶️ Starte bwin.py
-      run: python3 bwin.py &
+      run: python3 bwin.py
     
     - name: ▶️ Starte bet-at-home.py
-      run: python3 bet-at-home.py &
+      run: python3 bet-at-home.py
     
     - name: 🕒 Warten bis alle Scraper fertig
       run: wait
