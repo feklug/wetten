@@ -12,7 +12,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 def init_driver():
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-gpu")
-    options.headless = False  # True für headless, False um Browser sichtbar zu machen
+    options.headless = True  # True für headless, False um Browser sichtbar zu machen
     
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
