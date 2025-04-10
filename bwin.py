@@ -12,7 +12,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 def init_driver():
     options = Options()
     options.add_argument("--disable-gpu")
-    options.headless = False  # Setze auf True, um im Hintergrund zu scrapen
+    options.headless = True  # Setze auf True, um im Hintergrund zu scrapen
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
     return driver
