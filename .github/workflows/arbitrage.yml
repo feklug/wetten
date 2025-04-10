@@ -16,7 +16,7 @@ jobs:
     - name: 🐍 Python installieren
       uses: actions/setup-python@v4
       with:
-        python-version: 3.10
+        python-version: 3.10  # oder 3.11, aber nicht 3.1!
 
     - name: 📦 Abhängigkeiten installieren
       run: pip install -r requirements.txt
