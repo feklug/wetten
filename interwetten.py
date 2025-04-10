@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
 
 # Setup des Webdrivers
@@ -13,8 +14,10 @@ def init_driver():
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-gpu")
     options.add_argument("--headless")  # Headless-Browser für GitHub Action
-    options.add_argument("--no-sandbox")  # Wichtige Option, wenn der Chrome im Container läuft
-    options.add_argument("--disable-dev-shm-usage")  # Speicherproblem im Container verhindern
+    options.add_argument("--no-sandbox")  # Wichtige Option für die GitHub Action Umgebung
+    options.add_argument("--disable-dev-shm-usage")  # Verhindert Speicherprobleme im Container
+    options.add_argument("--disable-extensions")  # Deaktiviert unnötige Erweiterungen
+    options.add_argument("--remote-debugging-port=9222")  # Nützlich zum Debuggen
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
     return driver
@@ -22,10 +25,16 @@ def init_driver():
 # Scraper für Fußball
 def scrape_football_events(driver, url):
     driver.get(url)
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "s-event"))
-    )
-    
+    try:
+        # Warten, bis das Event-Element vorhanden ist
+        WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "s-event"))
+        )
+    except TimeoutException as e:
+        print("⚠️ Timeout beim Warten auf das Element:", e)
+        driver.save_screenshot("timeout_error_screenshot.png")  # Screenshot bei Fehler
+        return []
+
     events = driver.find_elements(By.CLASS_NAME, "s-event")
     print(f"⚽ Fußball: {len(events)} Events gefunden.")
 
@@ -65,7 +74,6 @@ def save_to_csv(data, filename):
             writer.writerow(row)
     print(f"💾 Gespeichert in '{filename}'.")
 
-
 # Hauptprogramm
 def main():
     driver = init_driver()
@@ -75,10 +83,13 @@ def main():
         football_data = scrape_football_events(driver, football_url)
         if football_data:
             save_to_csv(football_data, "interwetten_fussball.csv")
+        else:
+            print("⚠️ Keine Fußball-Events zum Speichern gefunden.")
 
     finally:
         driver.quit()
 
 if __name__ == "__main__":
     main()
+
 
