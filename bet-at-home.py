@@ -1,5 +1,6 @@
 import time
 import csv
+import tempfile
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -9,15 +10,25 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
 # Setup des Webdrivers
+
+
 def init_driver():
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-gpu")
-    options.headless = True  # True für headless, False um Browser sichtbar zu machen
-    
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    # Pflicht für GitHub Actions (neue Headless-Variante)
+    options.add_argument("--headless=new")
+
+    # Wichtig: Jeder Chrome braucht ein eigenes Profil
+    user_data_dir = tempfile.mkdtemp()
+    options.add_argument(f"--user-data-dir={user_data_dir}")
+
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
-    
     return driver
+
 
 # Scrape-Funktion für bet-at-home
 def scrape_events(driver, url):
