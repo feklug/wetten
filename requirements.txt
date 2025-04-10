@@ -1,2 +1,6 @@
+pandas
+firebase-admin
+fuzzywuzzy
+python-Levenshtein
 selenium
 webdriver-manager
