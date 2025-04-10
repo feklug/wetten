@@ -1,5 +1,7 @@
 import time
 import csv
+import tempfile
+import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -9,13 +11,22 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
 # Setup des Webdrivers
+
+
 def init_driver():
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-gpu")
-    options.headless = True  # Headless = True für verstecktes Ausführen
+    options.headless = True  # True für headless, False um Browser sichtbar zu machen
+
+    # Erstelle ein temporäres Verzeichnis für das User-Datenverzeichnis
+    user_data_dir = tempfile.mkdtemp()  # Ein einzigartiges temporäres Verzeichnis
+    options.add_argument(f"user-data-dir={user_data_dir}")
+
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
+    
     return driver
+
 
 # Scraper für Fußball
 def scrape_football_events(driver, url):
