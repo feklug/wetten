@@ -24,7 +24,7 @@ def init_driver():
 # === Firestore Setup ===
 def init_firestore():
     # Hier den Pfad zu deiner Firebase-Schlüsseldatei angeben
-    cred = credentials.Certificate("/path/to/your/firebase-service-account.json")
+    cred = credentials.Certificate("accelerate-app-f3f90-firebase-adminsdk-mnbwy-917250e91c.json")
     firebase_admin.initialize_app(cred)
     return firestore.client()
 
