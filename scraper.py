@@ -1,5 +1,4 @@
 import time
-import csv
 import firebase_admin
 from firebase_admin import credentials, firestore
 from selenium import webdriver
@@ -136,20 +135,12 @@ def find_arbitrage_opportunities(data, is_tennis=False):
             print("⚠️ Fehler bei Arbitrage-Prüfung:", e)
     return arbitrage
 
-# === CSV Export ===
-def save_to_csv(data, filename, is_tennis=False):
-    with open(filename, mode="w", newline="") as file:
-        writer = csv.writer(file)
-        if is_tennis:
-            writer.writerow(["Team 1", "Team 2", "Spielzeit", "1", "2"])
-        else:
-            writer.writerow(["Team 1", "Team 2", "Spielzeit", "1", "X", "2"])
-        for row in data:
-            writer.writerow(row)
-    print(f"💾 Gespeichert in '{filename}'.")
-
 # === Firestore Export ===
 def save_arbitrage_to_firestore(db, data, collection_name, is_tennis=False):
+    if not data:
+        print(f"ℹ️ Keine Arbitrage-Fälle für {collection_name} gefunden.")
+        return
+        
     collection = db.collection(collection_name)
     for row in data:
         doc = {
@@ -174,24 +165,21 @@ def main():
         football_url = "https://www.interwetten.com/de/sportwetten/heute"
         tennis_url = "https://www.interwetten.com/de/sportwetten/heute/11"
 
+        # Scrape football and save only arbitrage opportunities
         football_data = scrape_football_events(driver, football_url)
         if football_data:
-            save_to_csv(football_data, "interwetten_fussball.csv")
             arbitrage_fussball = find_arbitrage_opportunities(football_data, is_tennis=False)
-            if arbitrage_fussball:
-                save_arbitrage_to_firestore(db, arbitrage_fussball, "arbitrage_fussball")
+            save_arbitrage_to_firestore(db, arbitrage_fussball, "arbitrage_fussball")
 
+        # Scrape tennis and save only arbitrage opportunities
         tennis_data = scrape_tennis_events(driver, tennis_url)
         if tennis_data:
-            save_to_csv(tennis_data, "interwetten_tennis.csv", is_tennis=True)
             arbitrage_tennis = find_arbitrage_opportunities(tennis_data, is_tennis=True)
-            if arbitrage_tennis:
-                save_arbitrage_to_firestore(db, arbitrage_tennis, "arbitrage_tennis")
+            save_arbitrage_to_firestore(db, arbitrage_tennis, "arbitrage_tennis")
 
     finally:
         driver.quit()
 
 if __name__ == "__main__":
     main()
-
 
