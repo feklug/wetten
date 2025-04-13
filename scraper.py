@@ -10,20 +10,35 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
+# Firebase credentials (replace with your actual credentials)
+FIREBASE_CREDENTIALS = {
+    "type": "service_account",
+    "project_id": "your-project-id",
+    "private_key_id": "your-private-key-id",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nyour-private-key\n-----END PRIVATE KEY-----\n",
+    "client_email": "your-client-email@your-project-id.iam.gserviceaccount.com",
+    "client_id": "your-client-id",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/your-client-email%40your-project-id.iam.gserviceaccount.com"
+}
+
 # === Webdriver Setup ===
 def init_driver():
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-gpu")
-
-    # Entferne den user-data-dir-Parameter, wenn du ihn nicht brauchst
-    options.headless = False  # Setze auf True, wenn du ohne Browserfenster arbeiten willst
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--headless")  # Run in headless mode for GitHub Actions
+    
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
     return driver
 
 # === Firestore Setup ===
 def init_firestore():
-    cred = credentials.Certificate("accelerate-app-f3f90-firebase-adminsdk-mnbwy-917250e91c.json")  # <-- Anpassen!
+    cred = credentials.Certificate(FIREBASE_CREDENTIALS)
     firebase_admin.initialize_app(cred)
     return firestore.client()
 
@@ -178,4 +193,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
