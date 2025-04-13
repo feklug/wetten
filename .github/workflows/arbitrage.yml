@@ -26,15 +26,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install selenium webdriver-manager firebase-admin csv
+        pip install selenium webdriver-manager firebase-admin
 
     - name: Run scraper
       run: python scraper.py
-
-    - name: Upload results
-      uses: actions/upload-artifact@v4
-      with:
-        name: scraping-results
-        path: |
-          interwetten_fussball.csv
-          interwetten_tennis.csv
