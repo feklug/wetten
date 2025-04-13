@@ -2,7 +2,7 @@ name: Sports Arbitrage Scraper
 
 on:
   schedule:
-    - cron: '* * * * *'  # Runs every minute
+    - cron: '*/5 * * * *'  # Every 5 minutes
   workflow_dispatch:
 
 jobs:
@@ -18,17 +18,10 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y wget unzip libnss3
-        
-    - name: Install Chrome
-      run: |
-        sudo curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-        sudo echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
-        sudo apt-get -y update
-        sudo apt-get -y install google-chrome-stable
+    - name: Install Chrome and Chromedriver
+      uses: browser-actions/setup-chrome@v1
+      with:
+        chrome-version: 'latest'  # or specify a version like '114.0.5735.90'
 
     - name: Install Python dependencies
       run: |
