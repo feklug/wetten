@@ -1,37 +1,39 @@
-name: Arbitrage Bot
+name: Web Scraping und Arbitrage Überprüfung
 
 on:
   schedule:
-    
-  workflow_dispatch:
+    - cron: '*/1 * * * *'  # Diese Cron-Expression führt den Job jede Minute aus.
+  workflow_dispatch:  # Erlaubt manuelles Triggern des Workflows.
 
 jobs:
-  run-scrapers:
-    runs-on: ubuntu-latest
+  scraper-job:
+    runs-on: ubuntu-latest  # Wählt die Umgebung (Ubuntu in diesem Fall).
 
     steps:
-    - name: 📥 Repository klonen
-      uses: actions/checkout@v3
+      # Schritt 1: Klone das Repository
+      - name: Repository auschecken
+        uses: actions/checkout@v2
 
-    - name: 🐍 Python installieren
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.11  # oder 3.11, aber nicht 3.1!
+      # Schritt 2: Setze Python und Installiere Abhängigkeiten
+      - name: Python 3 Setup
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'  # Stelle sicher, dass du Python 3.8 oder eine andere Version verwendest
 
-    - name: 📦 Abhängigkeiten installieren
-      run: pip install -r requirements.txt
+      - name: Installiere Abhängigkeiten
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: ▶️ Starte interwetten.py
-      run: python3 interwetten.py
-    
-    - name: ▶️ Starte bwin.py
-      run: python3 bwin.py
-    
-    - name: ▶️ Starte bet-at-home.py
-      run: python3 bet-at-home.py
-    
-    - name: 🕒 Warten bis alle Scraper fertig
-      run: wait
-    
-    - name: ✅ Hauptanalyse (a.py)
-      run: python3 a.py
+      # Schritt 3: Stelle sicher, dass die Firebase Credentials vorhanden sind
+      - name: Firebase credentials
+        run: |
+          if [ ! -f "accelerate-app-f3f90-firebase-adminsdk-mnbwy-917250e91c.json" ]; then
+            echo "Firebase credentials fehlen!" && exit 1;
+          fi
+
+      # Schritt 4: Starte den Scraper
+      - name: Scraping und Arbitrage
+        run: |
+          python3 scraper.py
+
