@@ -14,6 +14,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 def init_driver():
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-gpu")
+
+    # Entferne den user-data-dir-Parameter, wenn du ihn nicht brauchst
     options.headless = False  # Setze auf True, wenn du ohne Browserfenster arbeiten willst
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
@@ -176,3 +178,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
