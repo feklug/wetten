@@ -1,39 +1,47 @@
-name: Web Scraping und Arbitrage Überprüfung
+name: Sports Arbitrage Scraper
 
 on:
   schedule:
-    - cron: '*/1 * * * *'  # Diese Cron-Expression führt den Job jede Minute aus.
-  workflow_dispatch:  # Erlaubt manuelles Triggern des Workflows.
+    - cron: '* * * * *'  # Runs every minute
+  workflow_dispatch:
 
 jobs:
-  scraper-job:
-    runs-on: ubuntu-latest  # Wählt die Umgebung (Ubuntu in diesem Fall).
-
+  scrape:
+    runs-on: ubuntu-latest
+    
     steps:
-      # Schritt 1: Klone das Repository
-      - name: Repository auschecken
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      # Schritt 2: Setze Python und Installiere Abhängigkeiten
-      - name: Python 3 Setup
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.8'  # Stelle sicher, dass du Python 3.8 oder eine andere Version verwendest
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
-      - name: Installiere Abhängigkeiten
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget unzip libnss3
+        
+    - name: Install Chrome
+      run: |
+        sudo curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+        sudo echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
+        sudo apt-get -y update
+        sudo apt-get -y install google-chrome-stable
 
-      # Schritt 3: Stelle sicher, dass die Firebase Credentials vorhanden sind
-      - name: Firebase credentials
-        run: |
-          if [ ! -f "accelerate-app-f3f90-firebase-adminsdk-mnbwy-917250e91c.json" ]; then
-            echo "Firebase credentials fehlen!" && exit 1;
-          fi
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install selenium webdriver-manager firebase-admin csv
 
-      # Schritt 4: Starte den Scraper
-      - name: Scraping und Arbitrage
-        run: |
-          python3 scraper.py
+    - name: Run scraper
+      run: python scraper.py
 
+    - name: Upload results
+      uses: actions/upload-artifact@v3
+      with:
+        name: scraping-results
+        path: |
+          interwetten_fussball.csv
+          interwetten_tennis.csv
